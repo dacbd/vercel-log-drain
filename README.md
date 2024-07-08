@@ -3,24 +3,6 @@ A simple log-drain you can deploy to export log messages from Vercel to AWS Clou
 
 Feel free to fork and modify to change behavior, trigger other events, or adapt for something other than Cloudwatch
 
-## Configure
-
-- logging level (default: `INFO`)
-    - via env: `export VERCEL_LOG_DRAIN_LOG_LEVEL="DEBUG"`
-    - via cli arg: `vercel-log-drain -l DEBUG`
-- listening port (default: `8000`)
-    - via env: `export VERLCEL_LOG_DRAIN_PORT=3000`
-    - via cli arg: `vercel-log-drain -p 3000`
-- listening interface (default: `0.0.0.0`)
-    - via env: `export VERLCEL_LOG_DRAIN_IP="127.0.0.1"`
-    - via cli arg: `vercel-log-drain -i 127.0.0.1`
-- Vercel's Verify response headed (NO default)
-    - via env: `export VERCEL_VERIFY="deadbeef"`
-    - via cli arg: `vercel-log-drain --vercel-verify deadbeef`
-- vercel's Secert (NO default)
-    - via env: `export VERCEL_SECRET="deadbeef"`
-    - via cli arg: `vercel-log-drain --vercel-SECRET deadbeef`
-
 ## AWS
 
 ### Cloudwatch
@@ -90,6 +72,24 @@ If you have structured JSON logging ie the contents of `messaage` is a json stri
 Example: `{ "message": { "method": "GET" } }` vs `{ "message": "{ \"method\": \"GET\" }" }`
 
 This helps with log queries in cloudwatch or if modified your downsteam system to search or filter on data not just provided by vercel but also your own JSON logging in the deployed application.
+
+## Configure
+
+- logging level (default: `INFO`)
+    - via env: `export VERCEL_LOG_DRAIN_LOG_LEVEL="DEBUG"`
+    - via cli arg: `vercel-log-drain -l DEBUG`
+- listening port (default: `8000`)
+    - via env: `export VERLCEL_LOG_DRAIN_PORT=3000`
+    - via cli arg: `vercel-log-drain -p 3000`
+- listening interface (default: `0.0.0.0`)
+    - via env: `export VERLCEL_LOG_DRAIN_IP="127.0.0.1"`
+    - via cli arg: `vercel-log-drain -i 127.0.0.1`
+- Vercel's Verify response headed (NO default)
+    - via env: `export VERCEL_VERIFY="deadbeef"`
+    - via cli arg: `vercel-log-drain --vercel-verify deadbeef`
+- vercel's Secert (NO default)
+    - via env: `export VERCEL_SECRET="deadbeef"`
+    - via cli arg: `vercel-log-drain --vercel-SECRET deadbeef`
 
 ## Related vercel documentation
 
