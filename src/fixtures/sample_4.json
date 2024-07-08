@@ -1,0 +1,57 @@
+[
+  {
+    "id": "40363739250170632792050739400000",
+    "message": "START RequestId: 91436746-0bd7-45e5-9537-9376ceab42a0\\nEND RequestId: 91436746-0bd7-45e5-9537-9376ceab42a0\\nREPORT RequestId: 91436746-0bd7-45e5-9537-9376ceab42a0 Duration: 169 ms Billed Duration: 170 ms Memory Size: 1024 MB Max Memory Used: 228 MB",
+    "timestamp": 1706327920507,
+    "type": "stdout",
+    "requestId": "iad1::iad1::xb8mc-1706327920410-346dff218d4b",
+    "statusCode": 200,
+    "proxy": {
+      "timestamp": 1706327920410,
+      "method": "GET",
+      "host": "code4rena.com",
+      "path": "/robots.txt",
+      "statusCode": 200,
+      "scheme": "https",
+      "userAgent": [
+        "ClaudeBot"
+      ],
+      "clientIp": "111.111.111.111",
+      "region": "iad1"
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "code4rena-com",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "lambda",
+    "host": "code4rena.com",
+    "path": "/[@username]",
+    "environment": "production",
+    "branch": "main"
+  },
+  {
+    "id": "40363739250170632792067684400000",
+    "timestamp": 1706327920676,
+    "type": "stdout",
+    "requestId": "iad1::iad1::xb8mc-1706327920410-346dff218d4b",
+    "proxy": {
+      "timestamp": 1706327920410,
+      "method": "GET",
+      "host": "code4rena.com",
+      "path": "/robots.txt",
+      "scheme": "https",
+      "userAgent": [
+        "ClaudeBot"
+      ],
+      "clientIp": "111.111.111.111",
+      "region": "iad1"
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "code4rena-com",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "lambda",
+    "host": "code4rena.com",
+    "path": "/[@username]",
+    "environment": "production",
+    "branch": "main"
+  }
+]

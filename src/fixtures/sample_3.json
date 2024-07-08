@@ -1,0 +1,28 @@
+[
+  {
+    "id": "27476384260170632792271911700000",
+    "timestamp": 1706327922719,
+    "type": "stdout",
+    "requestId": "iad1::iad1::fs5lg-1706327922415-d483cf84a9d9",
+    "proxy": {
+      "timestamp": 1706327922415,
+      "method": "GET",
+      "host": "code4rena.com",
+      "path": "/leaderboard",
+      "scheme": "https",
+      "userAgent": [
+        "ClaudeBot"
+      ],
+      "clientIp": "111.111.111.111",
+      "region": "iad1"
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "code4rena-com",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "lambda",
+    "host": "code4rena.com",
+    "path": "/leaderboard",
+    "environment": "production",
+    "branch": "main"
+  }
+]

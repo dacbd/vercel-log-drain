@@ -1,0 +1,33 @@
+[
+  {
+    "id": "1706327928080727830237235800",
+    "timestamp": 1706327928080,
+    "requestId": "cpt1::fjtmz-1706327928072-6ecc9b4dfbf3",
+    "proxy": {
+      "timestamp": 1706327928072,
+      "region": "cpt1",
+      "clientIp": "105.29.162.58",
+      "vercelCache": "HIT",
+      "method": "GET",
+      "statusCode": 200,
+      "pathType": "STATIC",
+      "vercelId": "fjtmz-1706327928072-6ecc9b4dfbf3",
+      "path": "/_next/static/media/d9396795aa5ec363-s.p.woff2",
+      "cacheId": "-",
+      "referer": "https://code4rena.com/",
+      "scheme": "https",
+      "host": "code4rena.com",
+      "userAgent": [
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      ]
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "code4rena-com",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "static",
+    "host": "code4rena-rd0hv9b2f-code4rena.vercel.app",
+    "path": "_next/static/media/d9396795aa5ec363-s.p.woff2",
+    "environment": "production",
+    "branch": "main"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1706819148723598425155574885",
+    "message": "{\"logType\":\"location\",\"method\":\"GET\",\"url\":\"https://code4rena-owiuz3k6k-code4rena.vercel.app/help\",\"ip\":\"123.123.123.123\",\"geo\":{\"city\":\"Seattle\",\"country\":\"US\",\"latitude\":\"123.6034\",\"longitude\":\"-123.3414\",\"region\":\"WA\"},\"loginHistory\":{\"name\":\"c4-loginHistory\",\"value\":\"true\"},\"cookie\":[{\"name\":\"c4-loginHistory\",\"value\":\"true\"}]}",
+    "timestamp": 1706819148723,
+    "type": "stdout",
+    "source": "edge",
+    "projectName": "code4rena-com",
+    "projectId": "prj_gTxQCZ52e2ysiMsPz5LHJ789drJj",
+    "deploymentId": "dpl_4cd3vVM83e29Mqtw9kkCRkjdfeth",
+    "buildId": null,
+    "host": "code4rena-owiuz3k6k-code4rena.vercel.app",
+    "path": "src/middleware",
+    "entrypoint": null,
+    "requestId": "h955z-1706819148606-9d9241259917",
+    "proxy": {
+      "timestamp": 1706819148606,
+      "method": "GET",
+      "scheme": "https",
+      "host": "code4rena-owiuz3k6k-code4rena.vercel.app",
+      "userAgent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+      ],
+      "referer": "https://code4rena-owiuz3k6k-code4rena.vercel.app/leaderboard?timeframe=2023",
+      "statusCode": null,
+      "clientIp": "123.123.123.123",
+      "region": "pdx1",
+      "cacheId": null,
+      "vercelCache": null
+    }
+  }
+]

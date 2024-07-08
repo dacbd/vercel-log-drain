@@ -1,0 +1,86 @@
+[
+  {
+    "id": "29306223290170632791412265300000",
+    "message": "START RequestId: 67948f63-24f5-4034-ba85-bbbbab6f1843\\nEND RequestId: 67948f63-24f5-4034-ba85-bbbbab6f1843\\nREPORT RequestId: 67948f63-24f5-4034-ba85-bbbbab6f1843 Duration: 116 ms Billed Duration: 117 ms Memory Size: 1024 MB Max Memory Used: 228 MB",
+    "timestamp": 1706327914122,
+    "type": "stdout",
+    "requestId": "bom1::iad1::5g9hp-1706327914010-7ba59b66d6f8",
+    "statusCode": 200,
+    "proxy": {
+      "timestamp": 1706327914010,
+      "method": "GET",
+      "host": "code4rena.com",
+      "path": "/audits?_rsc=xxx",
+      "statusCode": 200,
+      "scheme": "https",
+      "userAgent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+      ],
+      "referer": "https://code4rena.com/",
+      "clientIp": "123.123.123.123",
+      "region": "bom1"
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "code4rena-com",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "lambda",
+    "host": "code4rena.com",
+    "path": "/audits.rsc",
+    "environment": "production",
+    "branch": "main"
+  },
+  {
+    "id": "29306223290170632791418823800000",
+    "timestamp": 1706327914188,
+    "type": "stdout",
+    "requestId": "bom1::iad1::5g9hp-1706327914010-7ba59b66d6f8",
+    "proxy": {
+      "timestamp": 1706327914010,
+      "method": "GET",
+      "host": "code4rena.com",
+      "path": "/audits?_rsc=xxxx",
+      "scheme": "https",
+      "userAgent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+      ],
+      "referer": "https://code4rena.com/",
+      "clientIp": "123.123.123.123",
+      "region": "bom1"
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "code4rena-com",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "lambda",
+    "host": "code4rena.com",
+    "path": "/audits.rsc",
+    "environment": "production",
+    "branch": "main"
+  },
+  {
+    "id": "29306223290170632791419702100000",
+    "timestamp": 1706327914197,
+    "type": "stdout",
+    "requestId": "bom1::iad1::5g9hp-1706327914010-7ba59b66d6f8",
+    "proxy": {
+      "timestamp": 1706327914010,
+      "method": "GET",
+      "host": "code4rena.com",
+      "path": "/audits?_rsc=5jlpo",
+      "scheme": "https",
+      "userAgent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+      ],
+      "referer": "https://code4rena.com/",
+      "clientIp": "123.123.123.123",
+      "region": "bom1"
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "code4rena-com",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "lambda",
+    "host": "code4rena.com",
+    "path": "/audits.rsc",
+    "environment": "production",
+    "branch": "main"
+  }
+]
