@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "vercel_log_drain_permissions" {
 ```
 
 ## Operation
-As written in my deployment this handled about `~8M` requests per month, with an avg response time (LB -> target) of `1.5-2ms` with an avg memory usage of `~5MB`.
+As written in my deployment this handled about `~8M` requests per month, with an avg response time (LB -> target) of `1-1.5ms` with an avg memory usage of `~5MB`.
 A 3 node deployment (for redundency) with `100m` CPU and `128MB` memory reservations should be able to go quite far.
 The response times above are a bit unfair because the system is designed to always responsed to vercel as fast as possible, adding the messages to an internal queue which processes the messages async from the actual POST request which is was receieved from.
 
