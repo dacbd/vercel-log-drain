@@ -1,4 +1,4 @@
-name: publish docker image
+name: Publish Docker Image
 
 on:
   release:
@@ -37,6 +37,6 @@ jobs:
 
       - uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-name: ghcr.io/${{ github.repository }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
