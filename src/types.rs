@@ -1,5 +1,8 @@
+use anyhow::Result;
+use async_trait::async_trait;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
+
 #[derive(Deserialize, Debug)]
 pub struct VercelPayload(pub Vec<Message>);
 
@@ -121,4 +124,10 @@ mod test {
             }
         }
     }
+}
+
+#[async_trait]
+pub trait LogDriver: Send + Sync {
+    async fn init(&mut self) -> Result<()>;
+    async fn send_log(&mut self, message: &Message) -> Result<()>;
 }
