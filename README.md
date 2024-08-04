@@ -1,18 +1,21 @@
 # vercel-log-drain
 
-A simple log-drain you can deploy to export log messages from Vercel to AWS Cloudwatch.
+A simple log-drain you can deploy to export log messages from Vercel to one or more sources!
 
-Feel free to fork and modify to change behavior, trigger other events, or adapt for something other than Cloudwatch
+## Drivers
 
-## AWS
+### AWS Cloudwatch
 
-### Cloudwatch
+To use the CloudWatch driver, you'll need to either:
+
+- add a environment variable for `VERCEL_LOG_DRAIN_CLOUDWATCH_ENABLED=true`
+- add the `--cloudwatch-enabled` cli flag
 
 The log drain will create new log groups and log streams if they are not present.
 Log groups follow this scheme: `/vercel/{project_name}/{vercel_source}`, `project_name` is self-explaining, and `vercel_source` is one of the following `build`, `edge`, `external`, `lambda`, and `static`
 The log stream is the vercel deployment ID.
 
-### Permissions
+#### Permissions
 
 AWS permissions used:
 
@@ -60,6 +63,31 @@ data "aws_iam_policy_document" "vercel_log_drain_permissions" {
 }
 ```
 
+### [Grafana Loki](https://grafana.com/docs/loki/latest/)
+
+to use the loki driver, you'll need to set up:
+
+- `--loki-enabled` (or the env var `VERCEL_LOG_DRAIN_LOKI_ENABLED=true`)
+- `--loki-url` (or the env var `VERCEL_LOG_DRAIN_LOKI_URL`)
+- (optional, if you have basic auth) `--loki-basic-auth-user` and `--loki-basic-auth-pass` (or the corresponding env vars `VERCEL_LOG_DRAIN_LOKI_USER` and `VERCEL_LOG_DRAIN_LOKI_PASS`)
+
+## Configuration
+
+| CLI Flag                 | Environment Variable                 | Default Value | Description                              |
+| ------------------------ | ------------------------------------ | ------------- | ---------------------------------------- |
+| `-l, --log`              | `VERCEL_LOG_DRAIN_LOG_LEVEL`         | `INFO`        | Log level                                |
+| `-i, --ip`               | `VERCEL_LOG_DRAIN_IP`                | `"0.0.0.0"`   | IP address to bind to                    |
+| `-p, --port`             | `VERCEL_LOG_DRAIN_PORT`              | `8000`        | Port number                              |
+| `--vercel-verify`        | `VERCEL_VERIFY`                      | -             | Vercel verification token                |
+| `--vercel-secret`        | `VERCEL_SECRET`                      | -             | Vercel secret                            |
+| `--enable-metrics`       | `VERCEL_LOG_DRAIN_ENABLE_METRICS`    | -             | Enable prometheus metrics endpoint       |
+| `--metrics-prefix`       | `VERCEL_LOG_DRAIN_METRICS_PREFIX`    | "drain"       | the shared prefix to use for all metrics |
+| `--enable-cloudwatch`    | `VERCEL_LOG_DRAIN_ENABLE_CLOUDWATCH` | -             | Enable CloudWatch integration            |
+| `--enable-loki`          | `VERCEL_LOG_DRAIN_ENABLE_LOKI`       | -             | Enable Loki integration                  |
+| `--loki-url`             | `VERCEL_LOG_DRAIN_LOKI_URL`          | `""`          | Loki URL                                 |
+| `--loki-basic-auth-user` | `VERCEL_LOG_DRAIN_LOKI_USER`         | `""`          | Loki basic auth username                 |
+| `--loki-basic-auth-pass` | `VERCEL_LOG_DRAIN_LOKI_PASS`         | `""`          | Loki basic auth password                 |
+
 ## Operation
 
 As written in my deployment this handled about `~8M` requests per month, with an avg response time (LB -> target) of `1-1.5ms` with an avg memory usage of `~5MB`.
@@ -78,25 +106,30 @@ Example: `{ "message": { "method": "GET" } }` vs `{ "message": "{ \"method\": \"
 
 This helps with log queries in cloudwatch or if modified your downsteam system to search or filter on data not just provided by vercel but also your own JSON logging in the deployed application.
 
-## Configure
+## Testing
 
-- logging level (default: `INFO`)
-  - via env: `export VERCEL_LOG_DRAIN_LOG_LEVEL="DEBUG"`
-  - via cli arg: `vercel-log-drain -l DEBUG`
-- listening port (default: `8000`)
-  - via env: `export VERCEL_LOG_DRAIN_PORT=3000`
-  - via cli arg: `vercel-log-drain -p 3000`
-- listening interface (default: `0.0.0.0`)
-  - via env: `export VERCEL_LOG_DRAIN_IP="127.0.0.1"`
-  - via cli arg: `vercel-log-drain -i 127.0.0.1`
-- Vercel's Verify response headed (NO default)
-  - via env: `export VERCEL_VERIFY="deadbeef"`
-  - via cli arg: `vercel-log-drain --vercel-verify deadbeef`
-- vercel's Secert (NO default)
-  - via env: `export VERCEL_SECRET="deadbeef"`
-  - via cli arg: `vercel-log-drain --vercel-SECRET deadbeef`
+```bash
+cargo build
+
+# run the server
+./target/debug/vercel-log-drain --enable-metrics --vercel-secret "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef" --vercel-verify verify --log DEBUG
+```
+
+If you're using the nix environment, there are some helpful scripts for running and sending test payloads to the server!
+
+```bash
+# build
+cargo build
+
+# run the server
+run  # you'll need to add env vars or your options here! example (i have an http sink server running on :8080 that is logging all requests incoming):
+run --enable-loki --loki-url http://localhost:8080/ingest
+
+# send test payloads
+test_drain ./src/fixtures/sample_1.json
+```
 
 ## Related vercel documentation
 
-- https://vercel.com/docs/observability/log-drains-overview/log-drains-reference#json-log-drains
-- https://vercel.com/docs/observability/log-drains-overview/log-drains-reference#secure-log-drains
+- [Vercel JSON Log Drains](https://vercel.com/docs/observability/log-drains-overview/log-drains-reference#json-log-drains)
+- [Vercel Secure Log Drains](https://vercel.com/docs/observability/log-drains-overview/log-drains-reference#secure-log-drains)
