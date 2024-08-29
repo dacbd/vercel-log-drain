@@ -56,7 +56,7 @@ impl LogDriver for LokiDriver {
             .json(&payload);
 
         debug!("built request");
-        if self.username != "" && self.password != "" {
+        if !self.username.is_empty() && !self.password.is_empty() {
             req = req.basic_auth(&self.username, Some(&self.password))
         }
         let response = req.send().await?;
