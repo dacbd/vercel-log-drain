@@ -1,4 +1,4 @@
-ARG RUST_VERSION=1.78.0
+ARG RUST_VERSION=1.80.0
 
 FROM rust:${RUST_VERSION}-slim-bookworm as builder
 WORKDIR /app
