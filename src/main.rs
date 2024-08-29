@@ -1,3 +1,4 @@
+mod app;
 mod controller;
 mod drivers;
 mod handlers;
@@ -93,7 +94,7 @@ async fn main() -> anyhow::Result<()> {
     let listen_address = format!("{}:{}", args.ip, args.port);
     let listener = tokio::net::TcpListener::bind(listen_address.clone()).await?;
 
-    let mut app = create_app(state);
+    let mut app = app::create_app(state);
 
     if args.enable_metrics {
         let (prometheus_layer, metric_handle) = PrometheusMetricLayerBuilder::new()
@@ -137,12 +138,4 @@ async fn shutdown_for_signals() {
             .await
         } => {}
     }
-}
-
-fn create_app(state: types::AppState) -> axum::Router {
-    return axum::Router::new()
-        .route("/", axum::routing::post(handlers::root))
-        .route("/health", axum::routing::get(handlers::health_check))
-        .route("/vercel", axum::routing::post(handlers::ingest))
-        .with_state(state);
 }
