@@ -60,7 +60,7 @@ async fn main() -> anyhow::Result<()> {
     let mut drivers: Vec<Box<dyn LogDriver>> = Vec::new();
 
     if args.enable_cloudwatch {
-        let config = aws_config::load_defaults(aws_config::BehaviorVersion::v2023_11_09()).await;
+        let config = aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()).await;
         let cwl_client = aws_sdk_cloudwatchlogs::Client::new(&config);
         drivers.push(Box::new(CloudWatchDriver::new(cwl_client)));
         debug!("added cloudwatch driver");

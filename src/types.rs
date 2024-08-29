@@ -78,6 +78,12 @@ struct VercelProxy {
     vercel_cache: Option<String>,
 }
 
+#[async_trait]
+pub trait LogDriver: Send + Sync {
+    async fn init(&mut self) -> Result<()>;
+    async fn send_log(&mut self, message: &Message) -> Result<()>;
+}
+
 #[cfg(test)]
 mod test {
     #[test]
@@ -131,10 +137,4 @@ mod test {
             }
         }
     }
-}
-
-#[async_trait]
-pub trait LogDriver: Send + Sync {
-    async fn init(&mut self) -> Result<()>;
-    async fn send_log(&mut self, message: &Message) -> Result<()>;
 }
