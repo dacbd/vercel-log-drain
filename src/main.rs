@@ -4,7 +4,6 @@ mod types;
 
 use crate::drivers::{CloudWatchDriver, LokiDriver};
 use crate::types::LogDriver;
-use anyhow::Result;
 use axum::{
     body::{Body, Bytes},
     extract::State,
@@ -61,7 +60,7 @@ struct AppState {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     tracing_subscriber::fmt()
         .json()
@@ -170,18 +169,16 @@ async fn ingest(
     body: Bytes,
 ) -> impl IntoResponse {
     debug!("received payload");
-    let response = Response::builder()
-        .status(StatusCode::OK)
-        .header("x-vercel-verify", state.vercel_verify)
-        .body(Body::empty())
-        .unwrap();
 
     let signature = match headers.get("x-vercel-signature") {
         Some(signature) => signature.to_str().unwrap(),
         None => {
             warn!("received payload without signature");
             counter!("drain_recv_invalid_signature").increment(1);
-            return response;
+            return Response::builder()
+                .status(StatusCode::BAD_REQUEST)
+                .body(Body::empty())
+                .expect("Defined Responses to be infalliable.");
         }
     };
     let body_string = match String::from_utf8(body.to_vec()) {
@@ -189,7 +186,10 @@ async fn ingest(
         Err(e) => {
             error!("received bad utf-8: {:?}", e);
             counter!("drain_recv_bad_utf8").increment(1);
-            return response;
+            return Response::builder()
+                .status(StatusCode::NOT_ACCEPTABLE)
+                .body(Body::empty())
+                .expect("Defined Responses to be infalliable.");
         }
     };
     let mut sig_bytes = [0u8; 20];
@@ -199,7 +199,11 @@ async fn ingest(
         Err(e) => {
             error!("failed verifying signature: {:?}", e);
             counter!("drain_failed_verify_signature").increment(1);
-            return response;
+            return Response::builder()
+                .status(StatusCode::UNPROCESSABLE_ENTITY)
+                .header("x-vercel-verify", state.vercel_verify)
+                .body(Body::empty())
+                .expect("Defined Responses to be infalliable.");
         }
     }
     match serde_json::from_str::<types::VercelPayload>(&body_string) {
@@ -218,7 +222,11 @@ async fn ingest(
             error!(payload = ?body_string, "failed parsing: {:?}", e);
         }
     }
-    return response;
+    return Response::builder()
+        .status(StatusCode::OK)
+        .header("x-vercel-verify", state.vercel_verify)
+        .body(Body::empty())
+        .expect("Defined Responses to be infalliable.");
 }
 
 async fn health_check() -> impl IntoResponse {
