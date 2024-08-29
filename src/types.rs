@@ -3,6 +3,13 @@ use async_trait::async_trait;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
 
+#[derive(Debug, Clone)]
+pub struct AppState {
+    pub vercel_verify: String,
+    pub vercel_secret: ring::hmac::Key,
+    pub log_queue: tokio::sync::mpsc::UnboundedSender<Message>,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct VercelPayload(pub Vec<Message>);
 
