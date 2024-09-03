@@ -22,5 +22,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: test
+      - name: Test (default features)
         run: cargo test
+      - name: Test (cloudwatch only)
+        run: cargo test --no-default-features --features cloudwatch
+      - name: Test (loki only)
+        run: cargo test --no-default-features --features loki

@@ -4,7 +4,7 @@ mod drivers;
 mod handlers;
 mod types;
 
-use crate::drivers::{CloudWatchDriver, LokiDriver};
+use crate::drivers::*;
 use crate::types::LogDriver;
 use axum::routing::get;
 use axum_prometheus::PrometheusMetricLayerBuilder;
@@ -13,6 +13,11 @@ use ring::hmac;
 use tokio::signal::{unix, unix::SignalKind};
 use tokio::sync::mpsc;
 use tracing::{debug, info, Level};
+
+#[cfg(not(any(feature = "cloudwatch", feature = "loki")))]
+compile_error!(
+    "No log driver features enabled. Build with the `cloudwatch` and/or `loki` features."
+);
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
@@ -34,15 +39,20 @@ struct Args {
     #[arg(long, env = "VERCEL_LOG_DRAIN_METRICS_PREFIX", default_value = "drain")]
     metrics_prefix: String,
 
+    #[cfg(feature = "cloudwatch")]
     #[arg(long, env = "VERCEL_LOG_DRAIN_ENABLE_CLOUDWATCH")]
     enable_cloudwatch: bool,
 
+    #[cfg(feature = "loki")]
     #[arg(long, env = "VERCEL_LOG_DRAIN_ENABLE_LOKI")]
     enable_loki: bool,
+    #[cfg(feature = "loki")]
     #[arg(long, env = "VERCEL_LOG_DRAIN_LOKI_URL", default_value = "")]
     loki_url: String,
+    #[cfg(feature = "loki")]
     #[arg(long, env = "VERCEL_LOG_DRAIN_LOKI_USER", default_value = "")]
     loki_basic_auth_user: String,
+    #[cfg(feature = "loki")]
     #[arg(long, env = "VERCEL_LOG_DRAIN_LOKI_PASS", default_value = "")]
     loki_basic_auth_pass: String,
 }
@@ -59,6 +69,7 @@ async fn main() -> anyhow::Result<()> {
 
     let mut drivers: Vec<Box<dyn LogDriver>> = Vec::new();
 
+    #[cfg(feature = "cloudwatch")]
     if args.enable_cloudwatch {
         let config = aws_config::load_defaults(aws_config::BehaviorVersion::v2024_03_28()).await;
         let cwl_client = aws_sdk_cloudwatchlogs::Client::new(&config);
@@ -66,6 +77,7 @@ async fn main() -> anyhow::Result<()> {
         debug!("added cloudwatch driver");
     }
 
+    #[cfg(feature = "loki")]
     if args.enable_loki {
         drivers.push(Box::new(LokiDriver::new(
             args.loki_url,
