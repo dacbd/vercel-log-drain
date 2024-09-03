@@ -15,7 +15,9 @@ use tokio::sync::mpsc;
 use tracing::{debug, info, Level};
 
 #[cfg(not(any(feature = "cloudwatch", feature = "loki")))]
-compile_error!("No log driver features enabled. Build with the `cloudwatch` and/or `loki` features.");
+compile_error!(
+    "No log driver features enabled. Build with the `cloudwatch` and/or `loki` features."
+);
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
