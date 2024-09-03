@@ -6,6 +6,8 @@ A simple log-drain you can deploy to export log messages from Vercel to one or m
 
 ### AWS Cloudwatch
 
+> *Available with the `cloudwatch` [feature](#cargo-features) (enabled by default).*
+
 To use the CloudWatch driver, you'll need to either:
 
 - add a environment variable for `VERCEL_LOG_DRAIN_CLOUDWATCH_ENABLED=true`
@@ -65,7 +67,9 @@ data "aws_iam_policy_document" "vercel_log_drain_permissions" {
 
 ### [Grafana Loki](https://grafana.com/docs/loki/latest/)
 
-to use the loki driver, you'll need to set up:
+> *Available with the `loki` [feature](#cargo-features) (enabled by default).*
+
+To use the loki driver, you'll need to set up:
 
 - `--loki-enabled` (or the env var `VERCEL_LOG_DRAIN_LOKI_ENABLED=true`)
 - `--loki-url` (or the env var `VERCEL_LOG_DRAIN_LOKI_URL`)
@@ -105,6 +109,31 @@ If you have structured JSON logging ie the contents of `messaage` is a json stri
 Example: `{ "message": { "method": "GET" } }` vs `{ "message": "{ \"method\": \"GET\" }" }`
 
 This helps with log queries in cloudwatch or if modified your downsteam system to search or filter on data not just provided by vercel but also your own JSON logging in the deployed application.
+
+## Cargo features
+
+`cargo` will build `vercel-log-drain` with **all**
+[features](https://doc.rust-lang.org/cargo/reference/features.html) by default:
+
+Feature      | Description
+------------ | --------
+`cloudwatch` | [AWS Cloudwatch](#aws-cloudwatch) driver
+`loki`       | [Grafana Loki](#grafana-loki) driver
+
+If you want a smaller binary, you could disable all of them with
+`--no-default-features`, and then only re-enable the features you use.
+
+For example, to build `vercel-log-drain` with only AWS Cloudwatch support:
+
+```sh
+cargo build --release --no-default-features --features cloudwatch
+```
+
+This can also be used when building the Docker image:
+
+```sh
+docker build -t vercel-log-drain --build-arg 'BUILD_ARGS=--no-default-features --features cloudwatch' .
+```
 
 ## Testing
 
