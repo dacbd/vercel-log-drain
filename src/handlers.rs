@@ -32,8 +32,10 @@ pub async fn ingest(
         None => {
             warn!("received payload without signature");
             counter!("drain_recv_invalid_signature").increment(1);
+            // Vercel's verificaion request doesn't actually sign the request,
+            // even if you set a custom secret in advance.
             return Response::builder()
-                .status(StatusCode::BAD_REQUEST)
+                .status(StatusCode::OK)
                 .body(Body::empty())
                 .expect("Defined Responses to be infalliable.");
         }
