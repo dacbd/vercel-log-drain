@@ -28,13 +28,27 @@ jobs:
         run: cargo test --no-default-features --features cloudwatch
       - name: Test (loki only)
         run: cargo test --no-default-features --features loki
-  docker-builds:
+  docker-builds-deb:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - uses: docker/build-push-action@v6.5.0
+      - name: Debain Image
+        uses: docker/build-push-action@v6.5.0
         with:
+          file: ./Dockerfile
+          context: .
+          push: false
+          tags: test
+  docker-builds-alpine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Alpine Image
+        uses: docker/build-push-action@v6.5.0
+        with:
+          file: ./Dockerfile.alpine
           context: .
           push: false
           tags: test
