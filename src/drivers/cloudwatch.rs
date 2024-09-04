@@ -59,7 +59,7 @@ impl CloudWatchDriver {
                 error!(?group_name, "failed to set retention policy: {:?}", e);
             }
         }
-        return Ok(());
+        Ok(())
     }
     async fn create_stream(&mut self, group_name: &str, stream_name: &str) -> Result<()> {
         match self
@@ -89,24 +89,24 @@ impl CloudWatchDriver {
             },
         }
         self.streams.insert(stream_name.to_owned());
-        return Ok(());
+        Ok(())
     }
     async fn check_or_create_group(&mut self, group_name: &str) -> Result<()> {
         if !self.groups.contains(group_name) {
             self.create_group(group_name).await?;
         }
-        return Ok(());
+        Ok(())
     }
     async fn check_or_create_stream(&mut self, group_name: &str, stream_name: &str) -> Result<()> {
         if !self.streams.contains(stream_name) {
             self.create_stream(group_name, stream_name).await?;
         }
-        return Ok(());
+        Ok(())
     }
     async fn check_or_create(&mut self, group_name: &str, stream_name: &str) -> Result<()> {
         self.check_or_create_group(group_name).await?;
         self.check_or_create_stream(group_name, stream_name).await?;
-        return Ok(());
+        Ok(())
     }
 }
 
