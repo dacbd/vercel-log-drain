@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1
+ARG RUST_VERSION=1.80.0
+ARG ALPINE_VERSION=3.20
+ARG BUILD_ARGS=""
+
+## Builder image
+FROM rust:${RUST_VERSION}-alpine${ALPINE_VERSION} AS builder
+
+# ring requires musl-dev.
+RUN \
+    --mount=type=cache,target=/var/cache/apk \
+<<EOF
+#!/bin/sh
+set -eux
+apk update
+apk upgrade
+apk add musl-dev
+EOF
+
+WORKDIR /app
+COPY Cargo.lock Cargo.toml /app/
+COPY src /app/src/
+
+ARG BUILD_ARGS
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/app/target \
+<<EOF
+#!/bin/sh
+set -eux
+cargo build --release ${BUILD_ARGS}
+cp ./target/release/vercel-log-drain /vercel-log-drain
+EOF
+
+## Runtime image
+FROM alpine:${ALPINE_VERSION}
+
+RUN \
+    --mount=type=cache,target=/var/cache/apk \
+<<EOF
+#!/bin/sh
+set -eux
+apk update
+apk upgrade
+apk add ca-certificates
+EOF
+
+COPY --from=builder /vercel-log-drain /usr/local/bin/vercel-log-drain
+EXPOSE 8000
+ENTRYPOINT [ "vercel-log-drain" ]
