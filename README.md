@@ -30,7 +30,7 @@ logs:PutLogEvents
 logs:PutRetentionPolicy
 ```
 
-##### Terraform examples
+#### Terraform examples
 
 Example Terraform [`aws_iam_role`][], [`aws_iam_role_policy`][] and [`aws_iam_policy_document`][] definitions which grant a minimal set of permissions required to push logs to CloudWatch:
 
