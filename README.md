@@ -32,13 +32,50 @@ logs:PutRetentionPolicy
 
 #### Terraform examples
 
-Example Terraform [`aws_iam_role`][], [`aws_iam_role_policy`][] and [`aws_iam_policy_document`][] definitions which grant a minimal set of permissions required to push logs to CloudWatch:
+Below are [`aws_iam_role`][], [`aws_iam_role_policy`][] and [`aws_iam_policy_document`][] definitions which grant a minimal set of permissions required to push logs to CloudWatch:
 
 [`aws_iam_role`]: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role
 [`aws_iam_role_policy`]: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy
 [`aws_iam_policy_document`]: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document
 
-<details><summary>Advanced Example</summary>
+
+<details><summary>Simple</summary>
+
+```hcl
+resource "aws_iam_role" "vercel_log_drain" {
+  name               = "vercel-log-drain"
+  description        = "Role to be used by the vercel log drain deployment"
+  assume_role_policy = data.aws_iam_policy_document.vercel_log_drain_assume.json
+}
+data "aws_iam_policy_document" "vercel_log_drain_assume" {
+    # depends on how you intend to deploy/run the service
+}
+resource "aws_iam_role_policy" "vercel_log_drain_policy" {
+  name   = "vercel-log-drain-policy"
+  role   = aws_iam_role.vercel_log_drain.id
+  policy = data.aws_iam_policy_document.vercel_log_drain_permissions.json
+}
+data "aws_iam_policy_document" "vercel_log_drain_permissions" {
+  statement {
+    actions = [
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogGroups",
+      "logs:DescribeLogStreams",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:PutRetentionPolicy",
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+```
+
+</details>
+
+<details><summary>Advanced</summary>
 
 ```hcl
 data "aws_caller_identity" "current" {}
@@ -106,43 +143,6 @@ data "aws_iam_policy_document" "vercel_log_drain_permissions" {
 </details>
 
 
-<details><summary>Simple Example</summary>
-
-```hcl
-resource "aws_iam_role" "vercel_log_drain" {
-  name               = "vercel-log-drain"
-  description        = "Role to be used by the vercel log drain deployment"
-  assume_role_policy = data.aws_iam_policy_document.vercel_log_drain_assume.json
-}
-data "aws_iam_policy_document" "vercel_log_drain_assume" {
-    # depends on how you intend to deploy/run the service
-}
-resource "aws_iam_role_policy" "vercel_log_drain_policy" {
-  name   = "vercel-log-drain-policy"
-  role   = aws_iam_role.vercel_log_drain.id
-  policy = data.aws_iam_policy_document.vercel_log_drain_permissions.json
-}
-data "aws_iam_policy_document" "vercel_log_drain_permissions" {
-  statement {
-    actions = [
-      "logs:DescribeLogGroups",
-      "logs:DescribeLogGroups",
-      "logs:DescribeLogStreams",
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
-      "logs:PutRetentionPolicy",
-    ]
-    resources = [
-      "*"
-    ]
-  }
-}
-```
-
-</details>
-
-
 ### [Grafana Loki](https://grafana.com/docs/loki/latest/)
 
 > *Available with the `loki` [feature](#cargo-features) (enabled by default).*
@@ -170,7 +170,7 @@ To use the loki driver, you'll need to set up:
 | `--loki-basic-auth-user` | `VERCEL_LOG_DRAIN_LOKI_USER`         | `""`          | Loki basic auth username                 |
 | `--loki-basic-auth-pass` | `VERCEL_LOG_DRAIN_LOKI_PASS`         | `""`          | Loki basic auth password                 |
 
-## Setting up
+## Setting up (in Vercel)
 
 Vercel requires that you host the application over HTTP or HTTPS, and have it be accessible from the public internet.
 
