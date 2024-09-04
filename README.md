@@ -10,7 +10,7 @@ A simple log-drain you can deploy to export log messages from Vercel to one or m
 
 To use the CloudWatch driver, you'll need to either:
 
-- add a environment variable for `VERCEL_LOG_DRAIN_CLOUDWATCH_ENABLED=true`
+- add an environment variable for `VERCEL_LOG_DRAIN_CLOUDWATCH_ENABLED=true`
 - add the `--cloudwatch-enabled` cli flag
 
 The log drain will create new log groups and log streams if they are not present.
