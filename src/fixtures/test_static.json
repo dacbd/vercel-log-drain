@@ -1,0 +1,28 @@
+[
+    {
+        "id": "1669188608031840836235986361",
+        "timestamp": 1725343693333,
+        "requestId": "dub1:dub1::xxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx",
+        "message": "SAMPLE MESSAGE",
+        "proxy": {
+            "timestamp": 1725343693333,
+            "region": "dub1",
+            "method": "GET",
+            "vercelCache": "MISS",
+            "statusCode": 200,
+            "referer": "https://my-app.vercel.app",
+            "path": "/test.txt",
+            "host": "my-app.vercel.app",
+            "scheme": "https",
+            "clientIp": "xxx.xxx.xxx.xxx",
+            "userAgent": [
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+            ]
+        },
+        "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxx",
+        "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxx",
+        "source": "static",
+        "host": "my-app.vercel.sh",
+        "path": "/test.txt"
+    }
+]

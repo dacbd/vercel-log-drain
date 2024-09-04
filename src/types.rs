@@ -14,6 +14,7 @@ pub struct AppState {
 pub struct VercelPayload(pub Vec<Message>);
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Message {
     pub id: String,
     #[serde(deserialize_with = "deserialize_message_data")]
@@ -23,18 +24,14 @@ pub struct Message {
     #[serde(rename = "type")]
     pub output_type: Option<String>,
     pub source: String,
-    #[serde(rename = "projectName")]
-    pub project_name: String,
-    #[serde(rename = "projectId")]
+    // projectName is not set on the test payload
+    pub project_name: Option<String>,
     pub project_id: String,
-    #[serde(rename = "deploymentId")]
     pub deployment_id: String,
-    #[serde(rename = "buildId")]
     pub build_id: Option<String>,
     pub host: String,
     pub path: Option<String>,
     pub entrypoint: Option<String>,
-    #[serde(rename = "requestId")]
     pub request_id: Option<String>,
     #[allow(private_interfaces)]
     pub proxy: Option<VercelProxy>,
@@ -59,22 +56,18 @@ where
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct VercelProxy {
     timestamp: i64,
     method: String,
     scheme: String,
     host: String,
-    #[serde(rename = "userAgent")]
     user_agent: Vec<String>,
     referer: Option<String>,
-    #[serde(rename = "statusCode")]
     status_code: Option<isize>,
-    #[serde(rename = "clientIp")]
     client_ip: String,
     region: String,
-    #[serde(rename = "cacheId")]
     cache_id: Option<String>,
-    #[serde(rename = "vercelCache")]
     vercel_cache: Option<String>,
 }
 
@@ -94,6 +87,11 @@ mod test {
             include_str!("fixtures/sample_3.json"),
             include_str!("fixtures/sample_4.json"),
             include_str!("fixtures/sample_5.json"),
+            // Vercel's test requests, missing projectName field
+            include_str!("fixtures/test_build.json"),
+            include_str!("fixtures/test_edge.json"),
+            include_str!("fixtures/test_lambda.json"),
+            include_str!("fixtures/test_static.json"),
         ];
         for data in test_data {
             let result = serde_json::from_str::<super::VercelPayload>(data);
