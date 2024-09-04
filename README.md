@@ -4,7 +4,7 @@ A simple log-drain you can deploy to export log messages from Vercel to one or m
 
 ## Drivers
 
-### AWS Cloudwatch
+### AWS CloudWatch
 
 > *Available with the `cloudwatch` [feature](#cargo-features) (enabled by default).*
 
@@ -23,7 +23,6 @@ AWS permissions used:
 
 ```
 logs:DescribeLogGroups
-logs:DescribeLogGroups
 logs:DescribeLogStreams
 logs:CreateLogGroup
 logs:CreateLogStream
@@ -31,16 +30,26 @@ logs:PutLogEvents
 logs:PutRetentionPolicy
 ```
 
-Terraform example creating a role to be used with the service
+Example Terraform [`aws_iam_role`][], [`aws_iam_role_policy`][] and [`aws_iam_policy_document`][] definitions which grant a minimal set of permissions required to push logs to CloudWatch:
+
+[`aws_iam_role`]: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role
+[`aws_iam_role_policy`]: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy
+[`aws_iam_policy_document`]: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document
 
 ```hcl
+data "aws_caller_identity" "current" {}
+variable "aws_region" {
+  type        = string
+  description = "AWS region to run in"
+}
 resource "aws_iam_role" "vercel_log_drain" {
   name               = "vercel-log-drain"
   description        = "Role to be used by the vercel log drain deployment"
   assume_role_policy = data.aws_iam_policy_document.vercel_log_drain_assume.json
 }
 data "aws_iam_policy_document" "vercel_log_drain_assume" {
-    # depends on how you intend to deploy/run the service
+    # An sts:AssumeRole policy for the service. This varies depending on how
+    # you intend to deploy/run the service.
 }
 resource "aws_iam_role_policy" "vercel_log_drain_policy" {
   name   = "vercel-log-drain-policy"
@@ -50,17 +59,42 @@ resource "aws_iam_role_policy" "vercel_log_drain_policy" {
 data "aws_iam_policy_document" "vercel_log_drain_permissions" {
   statement {
     actions = [
-      "logs:DescribeLogGroups",
-      "logs:DescribeLogGroups",
-      "logs:DescribeLogStreams",
       "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents",
       "logs:PutRetentionPolicy",
     ]
     resources = [
-      "*"
+      provider::aws::arn_build(
+        "aws",
+        "logs",
+        var.aws_region,
+        data.aws_caller_identity.current.account_id,
+        "log-group:/vercel/*"
+      )
     ]
+  }
+
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:DescribeLogStreams",
+      "logs:PutLogEvents",
+    ]
+    resources = [
+      provider::aws::arn_build(
+        "aws",
+        "logs",
+        var.aws_region,
+        data.aws_caller_identity.current.account_id,
+        "log-group:/vercel/*:*"
+      )
+    ]
+  }
+
+  statement {
+    actions = [
+      "logs:DescribeLogGroups",
+    ]
+    resources = ["*"]
   }
 }
 ```
@@ -92,6 +126,32 @@ To use the loki driver, you'll need to set up:
 | `--loki-basic-auth-user` | `VERCEL_LOG_DRAIN_LOKI_USER`         | `""`          | Loki basic auth username                 |
 | `--loki-basic-auth-pass` | `VERCEL_LOG_DRAIN_LOKI_PASS`         | `""`          | Loki basic auth password                 |
 
+## Setting up
+
+Vercel requires that you host the application over HTTP or HTTPS, and have it be accessible from the public internet.
+
+`vercel-log-drain` itself only supports HTTP – but you can put a HTTPS load balancer in front of it.
+
+To add new log drains in Vercel:
+
+1. Go to the [Vercel account dashboard](https://vercel.com/account).
+2. Find the team to configure, and click `...` → Manage
+3. Select Log Drains
+
+The parameters you'll need for `vercel-log-drain` are:
+
+* Delivery format: JSON
+* Custom secret: the Vercel secret you set with `--vercel-secret` or `VERCEL_SECRET`
+* Endpoint: `https://${your_hostname}/vercel`
+* Custom headers: add a random secret header value, and configure your load balancer to require that header
+
+Pass the value of the `x-vercel-verify` header (provided by Vercel) to `vercel-log-drain` with the `--vercel-verify` argument or `VERCEL_VERIFY` environment variable.
+
+> [!NOTE]
+> Vercel *does not* sign the initial verification request, and expects the endpoint to return HTTP 200 OK and the `x-vercel-verify` to that request.
+>
+> Configuring Vercel to send an extra custom header *and* requiring it in your HTTPS load balancer should allow it to drop the majority of bot traffic *without* it touching `vercel-log-drain` or exposing your account's `x-vercel-verify` token.
+
 ## Operation
 
 As written in my deployment this handled about `~8M` requests per month, with an avg response time (LB -> target) of `1-1.5ms` with an avg memory usage of `~5MB`.
@@ -117,13 +177,13 @@ This helps with log queries in cloudwatch or if modified your downsteam system t
 
 Feature      | Description
 ------------ | --------
-`cloudwatch` | [AWS Cloudwatch](#aws-cloudwatch) driver
+`cloudwatch` | [AWS CloudWatch](#aws-cloudwatch) driver
 `loki`       | [Grafana Loki](#grafana-loki) driver
 
 If you want a smaller binary, you could disable all of them with
 `--no-default-features`, and then only re-enable the features you use.
 
-For example, to build `vercel-log-drain` with only AWS Cloudwatch support:
+For example, to build `vercel-log-drain` with only AWS CloudWatch support:
 
 ```sh
 cargo build --release --no-default-features --features cloudwatch
