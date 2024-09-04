@@ -188,7 +188,7 @@ mod tests {
                 response
                     .headers()
                     .get("x-vercel-verify")
-                    .expect(&format!(
+                    .unwrap_or_else(|| panic!(
                         "missing x-vercel-verify header for auth_header: {auth_header:?}"
                     ))
                     .to_str()?,
