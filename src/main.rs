@@ -94,14 +94,14 @@ async fn main() -> anyhow::Result<()> {
     tokio::spawn(async move {
         controller.run().await;
     });
-    let state = types::AppState {
-        vercel_verify: args.vercel_verify,
-        vercel_secret: hmac::Key::new(
+    let state = types::AppState::new(
+        &args.vercel_verify,
+        hmac::Key::new(
             hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY,
             args.vercel_secret.as_bytes(),
         ),
-        log_queue: tx,
-    };
+        tx,
+    )?;
 
     let listen_address = format!("{}:{}", args.ip, args.port);
     let listener = tokio::net::TcpListener::bind(listen_address.clone()).await?;

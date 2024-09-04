@@ -1,13 +1,48 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use async_trait::async_trait;
+use axum::{
+    body::Body,
+    http::{Response, StatusCode},
+    response::IntoResponse,
+};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AppState {
-    pub vercel_verify: String,
-    pub vercel_secret: ring::hmac::Key,
+    vercel_secret: ring::hmac::Key,
     pub log_queue: tokio::sync::mpsc::UnboundedSender<Message>,
+    ok_response: Response<()>,
+}
+
+impl AppState {
+    pub fn new(
+        vercel_verify: &str,
+        vercel_secret: ring::hmac::Key,
+        log_queue: tokio::sync::mpsc::UnboundedSender<Message>,
+    ) -> Result<Self> {
+        let ok_response = Response::builder()
+            .status(StatusCode::OK)
+            .header("x-vercel-verify", vercel_verify)
+            .body(())?;
+
+        Ok(Self {
+            vercel_secret,
+            log_queue,
+            ok_response,
+        })
+    }
+
+    /// Verify the signature of an incoming request.
+    pub fn verify_signature(&self, body: &[u8], sig_bytes: &[u8]) -> Result<()> {
+        ring::hmac::verify(&self.vercel_secret, body, sig_bytes)
+            .map_err(|_| anyhow!("Invalid signature"))
+    }
+
+    /// OK response with `x-vercel-verify` header
+    pub fn ok_response(&self) -> Response<Body> {
+        (self.ok_response.clone(), Body::empty()).into_response()
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -79,9 +114,11 @@ pub trait LogDriver: Send + Sync {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+
     #[test]
     fn all_seen_messages_parse_ok() {
-        let test_data = vec![
+        let test_data = [
             include_str!("fixtures/sample_1.json"),
             include_str!("fixtures/sample_2.json"),
             include_str!("fixtures/sample_3.json"),
@@ -94,22 +131,21 @@ mod test {
             include_str!("fixtures/test_static.json"),
         ];
         for data in test_data {
-            let result = serde_json::from_str::<super::VercelPayload>(data);
+            let result = serde_json::from_str::<VercelPayload>(data);
             assert!(result.is_ok());
         }
     }
+
     #[test]
-    fn parses_structured_messages() {
+    fn parses_structured_messages() -> Result<()> {
         let test_data = [
             include_str!("fixtures/structured_message_1.json"),
             include_str!("fixtures/structured_message_2.json"),
             include_str!("fixtures/sample_1.json"),
         ];
         for (index, data) in test_data.iter().enumerate() {
-            let result = serde_json::from_str::<super::VercelPayload>(data);
-            assert!(result.is_ok());
-            let payload = result.unwrap().0;
-            for msg in payload {
+            let payload = serde_json::from_str::<VercelPayload>(data)?;
+            for msg in payload.0 {
                 match index {
                     0 => assert!(msg.message.is_object()),
                     1 => assert!(msg.message.is_object()),
@@ -117,11 +153,12 @@ mod test {
                 }
             }
         }
+        Ok(())
     }
     #[test]
     fn parses_structured_data_as_expected() {
         let test_data = include_str!("fixtures/structured_message_1.json");
-        let result = serde_json::from_str::<super::VercelPayload>(test_data);
+        let result = serde_json::from_str::<VercelPayload>(test_data);
         assert!(result.is_ok());
         let payload = result.unwrap();
         let msg = payload.0.first().unwrap();
