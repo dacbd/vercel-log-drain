@@ -1,23 +1,20 @@
 use crate::types;
 use axum::{
-    body::{Body, Bytes},
+    body::Bytes,
     extract::State,
-    http::{header::HeaderMap, Response, StatusCode},
+    http::{header::HeaderMap, StatusCode},
     response::IntoResponse,
 };
 use axum_prometheus::metrics::counter;
-use ring::hmac;
+use core::str;
 use tracing::{debug, error, warn};
 
 pub async fn root() -> impl IntoResponse {
-    Response::builder()
-        .status(StatusCode::OK)
-        .body(Body::empty())
-        .unwrap()
+    StatusCode::OK
 }
 
 pub async fn health_check() -> impl IntoResponse {
-    return StatusCode::OK;
+    StatusCode::OK
 }
 
 pub async fn ingest(
@@ -27,45 +24,45 @@ pub async fn ingest(
 ) -> impl IntoResponse {
     debug!("received payload");
 
-    let signature = match headers.get("x-vercel-signature") {
-        Some(signature) => signature.to_str().unwrap(),
-        None => {
-            warn!("received payload without signature");
-            counter!("drain_recv_invalid_signature").increment(1);
-            // Vercel's verificaion request doesn't actually sign the request,
-            // even if you set a custom secret in advance.
-            return Response::builder()
-                .status(StatusCode::OK)
-                .body(Body::empty())
-                .expect("Defined Responses to be infalliable.");
-        }
+    let Some(sig_header) = headers.get("x-vercel-signature") else {
+        warn!(?headers, "received payload without signature");
+        counter!("drain_recv_missing_signature").increment(1);
+        return state.ok_response();
     };
-    let body_string = match String::from_utf8(body.to_vec()) {
+
+    // Catch whenever we get a signature header which is not 20 bytes encoded
+    // in base16.
+    let Some(sig_bytes) = sig_header.to_str().ok().and_then(|sig| {
+        let mut sig_bytes = [0; 20];
+        hex::decode_to_slice(sig, &mut sig_bytes)
+            .ok()
+            .map(|()| sig_bytes)
+    }) else {
+        warn!(?headers, "received payload with invalid signature");
+        counter!("drain_recv_invalid_signature").increment(1);
+        return StatusCode::UNAUTHORIZED.into_response();
+    };
+
+    // Catch whenever the signature is invalid.
+    if state.verify_signature(&body, &sig_bytes).is_err() {
+        error!(?headers, "failed verifying signature");
+        counter!("drain_failed_verify_signature").increment(1);
+        return StatusCode::UNAUTHORIZED.into_response();
+    }
+
+    // Now that we've verified the signature, decode the payload as a UTF-8
+    // string.
+    let body_string = match str::from_utf8(&body) {
         Ok(body_string) => body_string,
         Err(e) => {
-            error!("received bad utf-8: {:?}", e);
+            error!("received bad utf-8: {e:?}");
             counter!("drain_recv_bad_utf8").increment(1);
-            return Response::builder()
-                .status(StatusCode::NOT_ACCEPTABLE)
-                .body(Body::empty())
-                .expect("Defined Responses to be infalliable.");
+            return StatusCode::NOT_ACCEPTABLE.into_response();
         }
     };
-    let mut sig_bytes = [0u8; 20];
-    hex::decode_to_slice(signature, &mut sig_bytes).unwrap();
-    match hmac::verify(&state.vercel_secret, body_string.as_bytes(), &sig_bytes) {
-        Ok(_) => {}
-        Err(e) => {
-            error!("failed verifying signature: {:?}", e);
-            counter!("drain_failed_verify_signature").increment(1);
-            return Response::builder()
-                .status(StatusCode::UNPROCESSABLE_ENTITY)
-                .header("x-vercel-verify", state.vercel_verify)
-                .body(Body::empty())
-                .expect("Defined Responses to be infalliable.");
-        }
-    }
-    match serde_json::from_str::<types::VercelPayload>(&body_string) {
+
+    // Parse the string as JSON.
+    match serde_json::from_str::<types::VercelPayload>(body_string) {
         Ok(payload) => {
             debug!("parsed payload, OK");
             for message in payload.0 {
@@ -79,11 +76,9 @@ pub async fn ingest(
         }
         Err(e) => {
             error!(payload = ?body_string, "failed parsing: {:?}", e);
+            return StatusCode::UNPROCESSABLE_ENTITY.into_response();
         }
     }
-    return Response::builder()
-        .status(StatusCode::OK)
-        .header("x-vercel-verify", state.vercel_verify)
-        .body(Body::empty())
-        .expect("Defined Responses to be infalliable.");
+
+    return state.ok_response();
 }
