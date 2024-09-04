@@ -130,7 +130,7 @@ To use the loki driver, you'll need to set up:
 
 Vercel requires that you host the application over HTTP or HTTPS, and have it be accessible from the public internet.
 
-`vercel-log-drain` itself only supports HTTP – but you can put a HTTPS load balancer in front of it.
+`vercel-log-drain` itself only supports HTTP – so you should put an HTTPS load balancer in front of it.
 
 To add new log drains in Vercel:
 
@@ -143,7 +143,7 @@ The parameters you'll need for `vercel-log-drain` are:
 * Delivery format: JSON
 * Custom secret: the Vercel secret you set with `--vercel-secret` or `VERCEL_SECRET`
 * Endpoint: `https://${your_hostname}/vercel`
-* Custom headers: add a random secret header value, and configure your load balancer to require that header
+* (optional) Custom headers: add a random secret header value, and configure your load balancer to require that header (to help filter out bot noise)
 
 Pass the value of the `x-vercel-verify` header (provided by Vercel) to `vercel-log-drain` with the `--vercel-verify` argument or `VERCEL_VERIFY` environment variable.
 
