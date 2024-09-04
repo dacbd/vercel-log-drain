@@ -93,11 +93,7 @@ async fn main() -> anyhow::Result<()> {
     tokio::spawn(async move {
         controller.run().await;
     });
-    let state = types::AppState::new(
-        &args.vercel_verify,
-        args.vercel_secret.as_bytes(),
-        tx,
-    )?;
+    let state = types::AppState::new(&args.vercel_verify, args.vercel_secret.as_bytes(), tx)?;
 
     let listen_address = format!("{}:{}", args.ip, args.port);
     let listener = tokio::net::TcpListener::bind(listen_address.clone()).await?;
