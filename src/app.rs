@@ -20,6 +20,7 @@ mod tests {
 
     #[tokio::test]
     async fn health_check() -> Result<()> {
+        let _ = tracing_subscriber::fmt().json().try_init();
         let (tx, _rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
         let state = types::AppState {
             vercel_verify: String::from(""),
@@ -42,6 +43,7 @@ mod tests {
     }
     #[tokio::test]
     async fn root_check() -> Result<()> {
+        let _ = tracing_subscriber::fmt().json().try_init();
         let (tx, _rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
         let state = types::AppState {
             vercel_verify: String::from(""),
@@ -65,12 +67,18 @@ mod tests {
     }
     #[tokio::test]
     async fn ingest_check_samples() -> Result<()> {
+        let _ = tracing_subscriber::fmt().json().try_init();
         let test_data = vec![
             include_str!("fixtures/sample_1.json"),
             include_str!("fixtures/sample_2.json"),
             include_str!("fixtures/sample_3.json"),
             include_str!("fixtures/sample_4.json"),
             include_str!("fixtures/sample_5.json"),
+            // Vercel's test requests, missing projectName field
+            include_str!("fixtures/test_build.json"),
+            include_str!("fixtures/test_edge.json"),
+            include_str!("fixtures/test_lambda.json"),
+            include_str!("fixtures/test_static.json"),
         ];
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
@@ -107,11 +115,12 @@ mod tests {
             );
             assert_eq!(response.status(), StatusCode::OK);
         }
-        assert_eq!(rx.len(), 8);
+        assert_eq!(rx.len(), 14);
         return Ok(());
     }
     #[tokio::test]
     async fn ingest_check_structured_messages() -> Result<()> {
+        let _ = tracing_subscriber::fmt().json().try_init();
         let test_data = vec![
             include_str!("fixtures/structured_message_1.json"),
             include_str!("fixtures/structured_message_2.json"),

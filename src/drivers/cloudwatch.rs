@@ -176,7 +176,11 @@ impl LogDriver for CloudWatchDriver {
 
     async fn send_log(&mut self, message: &Message) -> Result<()> {
         let mut retries: usize = 0;
-        let group_name = format!("/vercel/{}/{}", message.project_name, message.source);
+        let project_name = match &message.project_name {
+            Some(n) => n.as_str(),
+            None => "null",
+        };
+        let group_name = format!("/vercel/{project_name}/{}", message.source);
         #[allow(clippy::useless_format)]
         let stream_name = format!("{}", message.deployment_id);
         self.check_or_create(&group_name, &stream_name).await?;

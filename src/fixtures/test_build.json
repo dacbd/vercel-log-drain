@@ -1,0 +1,26 @@
+[
+    {
+        "id": "1669188564156008676158000000",
+        "message": "SAMPLE MESSAGE: info  - Compiled successfully",
+        "timestamp": 1725343693336,
+        "type": "stdout",
+        "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxx",
+        "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxx",
+        "source": "build",
+        "buildId": "bld_xxxxx",
+        "host": "my-app.vercel.sh",
+        "entrypoint": "."
+    },
+    {
+        "id": "1669188564157008676158000000",
+        "message": "SAMPLE MESSAGE: info  - Collecting page data...",
+        "timestamp": 1725343693336,
+        "type": "stdout",
+        "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxx",
+        "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxx",
+        "source": "build",
+        "buildId": "bld_xxxxx",
+        "host": "my-app.vercel.sh",
+        "entrypoint": "."
+    }
+]

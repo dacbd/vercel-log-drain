@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1669188782687374643267100000",
+    "message": "SAMPLE MESSAGE: Inside middleware hello",
+    "timestamp": 1725343693334,
+    "type": "stdout",
+    "requestId": "xxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx",
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxx",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxx",
+    "source": "edge",
+    "host": "my-app.vercel.sh",
+    "path": "/api/hello"
+  },
+  {
+    "id": "1669188782687374643267100001",
+    "message": "SAMPLE MESSAGE: Inside middleware 2",
+    "timestamp": 1725343693334,
+    "type": "stdout",
+    "requestId": "xxxxx-xxxxxxxxxxxxx-xxxxxxxxxxxx",
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxx",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxx",
+    "source": "edge",
+    "host": "my-app.vercel.sh",
+    "path": "/api/hello"
+  }
+]
