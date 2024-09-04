@@ -39,7 +39,7 @@ Below are [`aws_iam_role`][], [`aws_iam_role_policy`][] and [`aws_iam_policy_doc
 [`aws_iam_policy_document`]: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document
 
 
-<details><summary>Simple</summary>
+<details><summary>Simple 🏠 </summary>
 
 ```hcl
 resource "aws_iam_role" "vercel_log_drain" {
@@ -75,7 +75,7 @@ data "aws_iam_policy_document" "vercel_log_drain_permissions" {
 
 </details>
 
-<details><summary>Advanced</summary>
+<details><summary>Advanced 🏘️ </summary>
 
 ```hcl
 data "aws_caller_identity" "current" {}
