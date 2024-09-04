@@ -9,7 +9,6 @@ use crate::types::LogDriver;
 use axum::routing::get;
 use axum_prometheus::PrometheusMetricLayerBuilder;
 use clap::Parser;
-use ring::hmac;
 use tokio::signal::{unix, unix::SignalKind};
 use tokio::sync::mpsc;
 use tracing::{debug, info, Level};
@@ -96,10 +95,7 @@ async fn main() -> anyhow::Result<()> {
     });
     let state = types::AppState::new(
         &args.vercel_verify,
-        hmac::Key::new(
-            hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY,
-            args.vercel_secret.as_bytes(),
-        ),
+        args.vercel_secret.as_bytes(),
         tx,
     )?;
 

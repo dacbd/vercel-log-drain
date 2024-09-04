@@ -5,12 +5,13 @@ use axum::{
     http::{Response, StatusCode},
     response::IntoResponse,
 };
+use ring::hmac;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
 
 #[derive(Clone)]
 pub struct AppState {
-    vercel_secret: ring::hmac::Key,
+    vercel_secret: hmac::Key,
     pub log_queue: tokio::sync::mpsc::UnboundedSender<Message>,
     ok_response: Response<()>,
 }
@@ -18,13 +19,15 @@ pub struct AppState {
 impl AppState {
     pub fn new(
         vercel_verify: &str,
-        vercel_secret: ring::hmac::Key,
+        vercel_secret: &[u8],
         log_queue: tokio::sync::mpsc::UnboundedSender<Message>,
     ) -> Result<Self> {
         let ok_response = Response::builder()
             .status(StatusCode::OK)
             .header("x-vercel-verify", vercel_verify)
             .body(())?;
+
+        let vercel_secret = hmac::Key::new(hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY, vercel_secret);
 
         Ok(Self {
             vercel_secret,
@@ -33,10 +36,18 @@ impl AppState {
         })
     }
 
+    #[cfg(test)]
+    /// Sign a request with the [AppState]'s Vercel secret.
+    ///
+    /// This method is only for use in tests.
+    pub fn sign_request_for_test_only(&self, body: &[u8]) -> String {
+        let sig = ring::hmac::sign(&self.vercel_secret, body);
+        hex::encode(sig)
+    }
+
     /// Verify the signature of an incoming request.
     pub fn verify_signature(&self, body: &[u8], sig_bytes: &[u8]) -> Result<()> {
-        ring::hmac::verify(&self.vercel_secret, body, sig_bytes)
-            .map_err(|_| anyhow!("Invalid signature"))
+        hmac::verify(&self.vercel_secret, body, sig_bytes).map_err(|_| anyhow!("Invalid signature"))
     }
 
     /// OK response with `x-vercel-verify` header

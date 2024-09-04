@@ -22,11 +22,7 @@ mod tests {
     async fn health_check() -> Result<()> {
         let _ = tracing_subscriber::fmt().json().try_init();
         let (tx, _rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
-        let state = types::AppState::new(
-            "",
-            ring::hmac::Key::new(ring::hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY, b""),
-            tx,
-        )?;
+        let state = types::AppState::new("", b"", tx)?;
         let mut app = create_app(state);
 
         let request = Request::builder().uri("/health").body(Body::empty())?;
@@ -39,11 +35,7 @@ mod tests {
     async fn root_check() -> Result<()> {
         let _ = tracing_subscriber::fmt().json().try_init();
         let (tx, _rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
-        let state = types::AppState::new(
-            "",
-            ring::hmac::Key::new(ring::hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY, b""),
-            tx,
-        )?;
+        let state = types::AppState::new("", b"", tx)?;
         let mut app = create_app(state);
 
         let request = Request::builder()
@@ -72,20 +64,18 @@ mod tests {
         ];
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
-        let key = ring::hmac::Key::new(
-            ring::hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY,
-            b"deadbeef1234dacb4321",
-        );
 
-        let state = types::AppState::new("test", key.clone(), tx)?;
-        let mut app = create_app(state);
+        let state = types::AppState::new("test", b"deadbeef1234dacb4321", tx)?;
+        let mut app = create_app(state.clone());
         let mut app_service = app.as_service();
 
         for data in test_data {
-            let sig = ring::hmac::sign(&key, data.as_bytes());
             let request = Request::builder()
                 .method("POST")
-                .header("x-vercel-signature", hex::encode(sig.as_ref()))
+                .header(
+                    "x-vercel-signature",
+                    state.sign_request_for_test_only(data.as_bytes()),
+                )
                 .uri("/vercel")
                 .body(Body::from(data))?;
             let response = app_service.call(request).await?;
@@ -112,20 +102,18 @@ mod tests {
         ];
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
-        let key = ring::hmac::Key::new(
-            ring::hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY,
-            b"deadbeef1234dacb4321",
-        );
 
-        let state = types::AppState::new("test", key.clone(), tx)?;
-        let mut app = create_app(state);
+        let state = types::AppState::new("test", b"deadbeef1234dacb4321", tx)?;
+        let mut app = create_app(state.clone());
         let mut app_service = app.as_service();
 
         for data in test_data {
-            let sig = ring::hmac::sign(&key, data.as_bytes());
             let request = Request::builder()
                 .method("POST")
-                .header("x-vercel-signature", hex::encode(sig.as_ref()))
+                .header(
+                    "x-vercel-signature",
+                    state.sign_request_for_test_only(data.as_bytes()),
+                )
                 .uri("/vercel")
                 .body(Body::from(data))?;
             let response = app_service.call(request).await?;
@@ -152,13 +140,9 @@ mod tests {
         let _ = tracing_subscriber::fmt().json().try_init();
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
-        let key = ring::hmac::Key::new(
-            ring::hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY,
-            b"deadbeef1234dacb4321",
-        );
 
-        let state = types::AppState::new("test", key, tx)?;
-        let mut app = create_app(state);
+        let state = types::AppState::new("test", b"deadbeef1234dacb4321", tx)?;
+        let mut app = create_app(state.clone());
         let mut app_service = app.as_service();
         let data = b"[]";
 
@@ -206,12 +190,8 @@ mod tests {
         let _ = tracing_subscriber::fmt().json().try_init();
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
-        let key = ring::hmac::Key::new(
-            ring::hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY,
-            b"deadbeef1234dacb4321",
-        );
 
-        let state = types::AppState::new("test", key, tx)?;
+        let state = types::AppState::new("test", b"deadbeef1234dacb4321", tx)?;
         let mut app = create_app(state);
         let mut app_service = app.as_service();
         let data = b"[]";
@@ -260,20 +240,18 @@ mod tests {
         ];
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<types::Message>();
-        let key = ring::hmac::Key::new(
-            ring::hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY,
-            b"deadbeef1234dacb4321",
-        );
 
-        let state = types::AppState::new("test", key.clone(), tx)?;
-        let mut app = create_app(state);
+        let state = types::AppState::new("test", b"deadbeef1234dacb4321", tx)?;
+        let mut app = create_app(state.clone());
         let mut app_service = app.as_service();
 
         for data in test_data {
-            let sig = ring::hmac::sign(&key, data.as_bytes());
             let request = Request::builder()
                 .method("POST")
-                .header("x-vercel-signature", hex::encode(sig.as_ref()))
+                .header(
+                    "x-vercel-signature",
+                    state.sign_request_for_test_only(data.as_bytes()),
+                )
                 .uri("/vercel")
                 .body(Body::from(data))?;
             let response = app_service.call(request).await?;

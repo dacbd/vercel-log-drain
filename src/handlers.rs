@@ -25,12 +25,6 @@ pub async fn ingest(
     debug!("received payload");
 
     let Some(sig_header) = headers.get("x-vercel-signature") else {
-        // Vercel's verification request isn't signed, even if you set a custom
-        // secret in advance. It also expect 200 OK.
-        //
-        // Configure Vercel to send a random custom static header and
-        // configure your HTTPS load balancer in front of vercel-log-drain
-        // to require it, if you want to discard bot traffic.
         warn!(?headers, "received payload without signature");
         counter!("drain_recv_missing_signature").increment(1);
         return state.ok_response();
@@ -86,5 +80,5 @@ pub async fn ingest(
         }
     }
 
-    state.ok_response()
+    return state.ok_response();
 }
