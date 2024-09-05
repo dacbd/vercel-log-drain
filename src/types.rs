@@ -81,6 +81,9 @@ pub struct Message {
     pub request_id: Option<String>,
     #[allow(private_interfaces)]
     pub proxy: Option<VercelProxy>,
+    pub status_code: Option<i16>,
+    pub execution_region: Option<String>,
+    pub level: Option<String>,
 }
 
 fn deserialize_message_data<'de, D>(deserializer: D) -> Result<serde_json::Value, D::Error>
@@ -108,6 +111,7 @@ struct VercelProxy {
     method: String,
     scheme: String,
     host: String,
+    #[serde(default)]
     user_agent: Vec<String>,
     referer: Option<String>,
     status_code: Option<isize>,
@@ -135,6 +139,7 @@ mod test {
             include_str!("fixtures/sample_3.json"),
             include_str!("fixtures/sample_4.json"),
             include_str!("fixtures/sample_5.json"),
+            include_str!("fixtures/sample_6.json"),
             // Vercel's test requests, missing projectName field
             include_str!("fixtures/test_build.json"),
             include_str!("fixtures/test_edge.json"),

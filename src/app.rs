@@ -56,6 +56,7 @@ mod tests {
             include_str!("fixtures/sample_3.json"),
             include_str!("fixtures/sample_4.json"),
             include_str!("fixtures/sample_5.json"),
+            include_str!("fixtures/sample_6.json"),
             // Vercel's test requests, missing projectName field
             include_str!("fixtures/test_build.json"),
             include_str!("fixtures/test_edge.json"),
@@ -89,7 +90,7 @@ mod tests {
             );
             assert_eq!(response.status(), StatusCode::OK);
         }
-        assert_eq!(rx.len(), 14);
+        assert_eq!(rx.len(), 15);
         Ok(())
     }
     #[tokio::test]

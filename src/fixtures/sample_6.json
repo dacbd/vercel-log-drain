@@ -1,0 +1,28 @@
+[
+  {
+    "id": "1706327928080727830237235800",
+    "message": "[GET] [middleware: \"middleware\"] / status=200",
+    "timestamp": 1706327928080,
+    "type": "middleware-invocation",
+    "requestId": "abc1-1706327928072-6ecc9b4dfbf3",
+    "executionRegion": "abc1",
+    "statusCode": 200,
+    "level": "info",
+    "proxy": {
+      "timestamp": 1706327928072,
+      "region": "abc1",
+      "clientIp": "192.0.2.3",
+      "method": "GET",
+      "path": "/",
+      "scheme": "https",
+      "host": "example.com"
+    },
+    "projectId": "prj_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "projectName": "example",
+    "deploymentId": "dpl_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "source": "edge",
+    "host": "example.vercel.app",
+    "path": "middleware",
+    "environment": "production"
+  }
+]
