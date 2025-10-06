@@ -50,7 +50,7 @@ impl Controller {
                     counter!("drain_failed_messages").increment(1);
                 }
             }
-            if self.processed_messages.is_multiple_of(100) {
+            if self.processed_messages % 100 == 0 {
                 info!(
                     processed_messages = self.processed_messages,
                     "processed 100 messages..."
