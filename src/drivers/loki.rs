@@ -36,6 +36,8 @@ impl LogDriver for LokiDriver {
             "project": message.project_name,
             "deployment": message.deployment_id,
             "source": message.source,
+            "environment": message.environment,
+            "branch": message.branch,
         });
 
         let payload = json!({

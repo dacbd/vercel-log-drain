@@ -84,6 +84,8 @@ pub struct Message {
     pub status_code: Option<i16>,
     pub execution_region: Option<String>,
     pub level: Option<String>,
+    pub environment: Option<String>,
+    pub branch: Option<String>,
 }
 
 fn deserialize_message_data<'de, D>(deserializer: D) -> Result<serde_json::Value, D::Error>
