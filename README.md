@@ -153,6 +153,16 @@ To use the loki driver, you'll need to set up:
 - `--loki-url` (or the env var `VERCEL_LOG_DRAIN_LOKI_URL`)
 - (optional, if you have basic auth) `--loki-basic-auth-user` and `--loki-basic-auth-pass` (or the corresponding env vars `VERCEL_LOG_DRAIN_LOKI_USER` and `VERCEL_LOG_DRAIN_LOKI_PASS`)
 
+### Standard Out
+
+You can enable the `stdout` driver by simply adding `--enable-stdout` which will print the each `Message` payload as json to stdout. Application logging will be printed to `stderr`.
+
+> [!IMPORTANT]
+> If you have a previous deployment and enable the `stdout` driver it may effect your logging setup.
+> The default (without stdout driver) application logs from the `vercel-log-drain` go to stdout.
+> With this driver enabled app will now go to `stderr` and the Vercel messages are printed to `stdout`.
+
+
 ## Configuration
 
 | CLI Flag                 | Environment Variable                 | Default Value | Description                              |

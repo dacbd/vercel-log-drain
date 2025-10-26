@@ -9,6 +9,7 @@ use crate::types::LogDriver;
 use axum::routing::get;
 use axum_prometheus::PrometheusMetricLayerBuilder;
 use clap::Parser;
+use std::io;
 use tokio::signal::{unix, unix::SignalKind};
 use tokio::sync::mpsc;
 use tracing::{debug, info, Level};
@@ -38,6 +39,9 @@ struct Args {
     #[arg(long, env = "VERCEL_LOG_DRAIN_METRICS_PREFIX", default_value = "drain")]
     metrics_prefix: String,
 
+    #[arg(long, env = "VERCEL_LOG_DRAIN_ENABLE_STDOUT")]
+    enable_stdout: bool,
+
     #[cfg(feature = "cloudwatch")]
     #[arg(long, env = "VERCEL_LOG_DRAIN_ENABLE_CLOUDWATCH")]
     enable_cloudwatch: bool,
@@ -59,14 +63,26 @@ struct Args {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    tracing_subscriber::fmt()
-        .json()
-        .with_max_level(args.log)
-        .init();
+    if args.enable_stdout {
+        tracing_subscriber::fmt()
+            .json()
+            .with_max_level(args.log)
+            .with_writer(io::stderr)
+            .init();
+    } else {
+        tracing_subscriber::fmt()
+            .json()
+            .with_max_level(args.log)
+            .init();
+    }
 
     let (tx, rx) = mpsc::unbounded_channel::<types::Message>();
 
     let mut drivers: Vec<Box<dyn LogDriver>> = Vec::new();
+
+    if args.enable_stdout {
+        drivers.push(Box::new(StdOutDriver::new()));
+    }
 
     #[cfg(feature = "cloudwatch")]
     if args.enable_cloudwatch {
